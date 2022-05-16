@@ -14,6 +14,8 @@ int main(){
 
     *p = 6.3; 
 
+    printf("%f \n", *p);
+
     shmdt(p);
     shmctl(shmid, IPC_CREAT, 0);
 

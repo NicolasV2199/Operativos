@@ -10,3 +10,7 @@ int shmget(key_t key, int size, int shmflg) --> Para crear la memoria compartida
         IPC_EXCL: Si no existe lo crea y si existe falla 
 
 void *shmat (int shmid, void *shmaddr, int shmflg)  --> Acopla un puntero al segmento de memoria compartida
+
+Formula de mapeo de matrices a una dimension 
+
+Pos(x,y) = x * Nocolumnas + y ---> Devuelve el indice lineal 
