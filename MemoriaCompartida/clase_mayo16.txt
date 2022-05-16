@@ -1,0 +1,12 @@
+int shmget(key_t key, int size, int shmflg) --> Para crear la memoria compartida
+
+    * Retorna el id del segmento de memoria compartida
+    * SI falla retorna -1
+    * key_t key: llave para crear o accesar la memoria compartida 
+    * int size: tamaño en bytes del segmento de memoria a crear. Usar 0 para acceder a un segmento existente 
+    * int shmflg: condicion para la creacion de la memoria y permiso de acceso
+
+        IPC_CREAT: Si no existe Lo crea y si ya existe lo retorna
+        IPC_EXCL: Si no existe lo crea y si existe falla 
+
+void *shmat (int shmid, void *shmaddr, int shmflg)  --> Acopla un puntero al segmento de memoria compartida
