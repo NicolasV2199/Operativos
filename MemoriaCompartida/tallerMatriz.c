@@ -34,8 +34,11 @@ int main(){
     oldhandler = signal( SIGUSR1, sighandler);     
     if(oldhandler == SIG_ERR){perror("signal:");exit(EXIT_FAILURE);}
 
-    //Declaramos un puntero a la matriz
-    double **matrix= NULL;
+    
+    double **matrix= NULL; //Declaramos un puntero a la matriz
+
+    printf("Que tamaño de matriz desea?");
+    scanf()
     int Rows=3, Cols = 3; //Definimos el tamaño
 
     size_t sizeMatrix = sizeof_dm(Rows,Cols,sizeof(double)); //Obtenemos el tamaño en memoria 
@@ -56,13 +59,13 @@ int main(){
         }
     }else{ //Proceso padre
         printf("Padre[%d]\n", getpid());
+        usleep(100);
+        kill(hijo, SIGUSR1);
         for(int i = 0; i< Rows; i++){
             for(int j = 0; j< Cols; j++){
                 matrix[i][j] = 1; 
             }
         }
-        usleep(100);
-        kill(hijo, SIGUSR1);
         wait(NULL);
     }
 
