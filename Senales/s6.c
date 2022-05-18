@@ -21,7 +21,7 @@ int main(){
         pidhijo[i] = fork();
         if(!pidhijo[i]) break;
     }    
-    if(root == getpid()){
+    if(root == getpid()){ //Padre
         printf("Padre[%d]\n", getpid());
         usleep(100);
         kill(pidhijo[1], SIGUSR1);
@@ -29,7 +29,7 @@ int main(){
         printf("Padre[%d]\n", getpid());
         for( j=0; j<2; j++)wait(NULL);
     }
-    else{
+    else{ //Hijos
         pause();
         printf("hijo[%d]\n", getpid());
         if(i==1)
