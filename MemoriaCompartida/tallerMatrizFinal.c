@@ -8,12 +8,6 @@
 #include <time.h>
 #include <math.h>
 
-void * oldhandler;
-
-void sighandler( int sig ){
-   // printf("senal recibida %d\n", sig);
-}
-
 //Funcion para definir el tamaño de la matriz
 unsigned int sizeof_dm(int rows, int cols, size_t sizeElement){
     size_t size;
@@ -42,38 +36,32 @@ int get_mult_result(int **a, int **b, int n, int i, int j) {
 } 
 
 int main(){
-
-    oldhandler = signal( SIGUSR1, sighandler);     
-    if(oldhandler == SIG_ERR){perror("signal:");exit(EXIT_FAILURE);}
-
-    
-    int **resultado= NULL; //Declaramos un puntero a la matriz
+   
+   //Declaramos un puntero a las matrices
+    int **resultado= NULL; 
     int **matriza= NULL; 
     int **matrizb= NULL; 
 
-    int tamanio, i; 
+    int tamanio; 
     printf("Que tamaño de matriz desea? ");
     scanf("%d", &tamanio);
-    
 
-    size_t sizeMatrix = sizeof_dm(tamanio,tamanio,sizeof(int)); //Obtenemos el tamaño en memoria 
-    int shmIdr = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
-    resultado = shmat(shmIdr, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
-    create_index((void*)resultado, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
-
-    int shmIda = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
-    matriza = shmat(shmIda, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
-    create_index((void*)matriza, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
-
-    int shmIdb = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
-    matrizb = shmat(shmIdb, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
-    create_index((void*)matrizb, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
-
-    pid_t root = getpid();
+	//Matriz resultado
+    size_t sizeMatrix = sizeof_dm(tamanio,tamanio,sizeof(int)); 
+    int shmIdr = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); 
+    resultado = shmat(shmIdr, NULL, 0); 
+    create_index((void*)resultado, tamanio, tamanio, sizeof(int)); 
+	//Matriz a
+    int shmIda = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); 
+    matriza = shmat(shmIda, NULL, 0); 
+    create_index((void*)matriza, tamanio, tamanio, sizeof(int)); 
+	//Matriz b
+    int shmIdb = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); 
+    matrizb = shmat(shmIdb, NULL, 0); 
+    create_index((void*)matrizb, tamanio, tamanio, sizeof(int)); 
 
     //Definimos las matrices
 	srand (time(NULL));
-
 	for(int p=0; p<tamanio; p++){
 		for(int q=0; q<tamanio; q++){
 			matriza[p][q]=rand()%10+1;
@@ -102,15 +90,17 @@ int main(){
 		}
     printf("\n");
 
-    // Creacion de los hijos
-    int hijos;
+    // Cuantos hijos
+    int hijos, i;
     if(tamanio%2==0) hijos = tamanio/2;
 	else hijos = (tamanio/2)+1;
+	//Creando los hijos
     for (i = 0; i < hijos; i++) if (!fork()) break;
 
     if(i == hijos){ //Si es el padre
-        for (int s = 0; s < hijos; ++s) wait(NULL);
-        printf("\nMatriz resultado (padre): [%d]\n", getpid());
+        for (int s = 0; s < hijos; ++s) wait(NULL); //Espero que terminen los hijos
+        printf("\nSoy el padre: [%d]\n", getpid());
+        printf("Resultado: \n");
 		for(int c=0; c<tamanio; c++){
 			printf("[ ");
 			for (int l=0; l<tamanio; l++)
@@ -120,20 +110,20 @@ int main(){
 			printf(" ]\n");
 		}
     }else{ //Son los hijos
-        // Estoy en el i-esimo hijo
-		printf("[%d] - Hijo %d procesa [%d, %d]\n", getpid(), i, i, tamanio - 1 - i);
+		printf("Hijo %d procesa [%d, %d]\n", getpid(), i, tamanio - 1 - i);
     
+		// Parte horizontal del anillo (arriba y abajo)
         for (int col = i; col < tamanio - i; col++) {
 			resultado[i][col] = get_mult_result(matriza, matrizb, tamanio, i, col);
 			resultado[tamanio - 1 - i][col] = get_mult_result(matriza, matrizb, tamanio, tamanio - 1 - i, col);
 		}
 
+		//Parte vertical del anillo (izquierda y derecha)
 		for (int row = i; row < tamanio - i; row++) {
 			resultado[row][i] = get_mult_result(matriza, matrizb, tamanio, row, i);
 			resultado[row][tamanio - 1 - i] = get_mult_result(matriza, matrizb, tamanio, row, tamanio - 1 - i);
 		}
     }
-   
 
     return EXIT_SUCCESS;
 }
