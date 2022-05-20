@@ -33,13 +33,13 @@ void create_index(void **m, int rows, int cols, size_t sizeElement){
 }
 
 //Funcion para hacer la multiplicacion de matrices
-/* int get_mult_result(int n, int i, int j) {
+int get_mult_result(int **a, int **b, int n, int i, int j) {
 	int res = 0;
 	for (int k = 0; k < n; k++) {
 		res += a[i][k] * b[k][j];
 	}
 	return res;
-}  */
+} 
 
 int main(){
 
@@ -47,7 +47,9 @@ int main(){
     if(oldhandler == SIG_ERR){perror("signal:");exit(EXIT_FAILURE);}
 
     
-    int **matrix= NULL; //Declaramos un puntero a la matriz
+    int **resultado= NULL; //Declaramos un puntero a la matriz
+    int **matriza= NULL; 
+    int **matrizb= NULL; 
 
     int tamanio, i; 
     printf("Que tamaño de matriz desea? ");
@@ -55,20 +57,27 @@ int main(){
     
 
     size_t sizeMatrix = sizeof_dm(tamanio,tamanio,sizeof(int)); //Obtenemos el tamaño en memoria 
-    int shmId = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
-    matrix = shmat(shmId, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
-    create_index((void*)matrix, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
+    int shmIdr = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
+    resultado = shmat(shmIdr, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
+    create_index((void*)resultado, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
+
+    int shmIda = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
+    matriza = shmat(shmIda, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
+    create_index((void*)matriza, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
+
+    int shmIdb = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); //Se crea el segmento de memoria con permisos de lectura y escritura
+    matrizb = shmat(shmIdb, NULL, 0); // A la matriz le acoplamos el segmento de memoria compartida
+    create_index((void*)matrizb, tamanio, tamanio, sizeof(int)); //Definimos los indices de la matriz
 
     pid_t root = getpid();
 
     //Definimos las matrices
-    int a[tamanio][tamanio] , b[tamanio][tamanio];
 	srand (time(NULL));
 
 	for(int p=0; p<tamanio; p++){
 		for(int q=0; q<tamanio; q++){
-			a[p][q]=rand()%10+1;
-			b[p][q]=rand()%10+1;
+			matriza[p][q]=rand()%10+1;
+			matrizb[p][q]=rand()%10+1;
 		}
 	}
 
@@ -78,7 +87,7 @@ int main(){
 			printf("[ ");
 			for (int l=0; l<tamanio; l++)
 			{
-				printf("%d ", a[c][l]);
+				printf("%d ", matriza[c][l]);
 			}
 			printf(" ]\n");
 		}
@@ -87,10 +96,11 @@ int main(){
 			printf("[ ");
 			for (int l=0; l<tamanio; l++)
 			{
-				printf("%d, ", b[c][l]);
+				printf("%d, ", matrizb[c][l]);
 			}
 			printf(" ]\n");
 		}
+    printf("\n");
 
     // Creacion de los hijos
     int hijos;
@@ -105,51 +115,23 @@ int main(){
 			printf("[ ");
 			for (int l=0; l<tamanio; l++)
 			{
-				printf("%d ", matrix[c][l]);
+				printf("%d ", resultado[c][l]);
 			}
 			printf(" ]\n");
 		}
     }else{ //Son los hijos
         // Estoy en el i-esimo hijo
-		printf("[%d] - child %d began to process ring segment between indexes [%d, %d]\n", getpid(), i, i, tamanio - 1 - i);
-		int res1 = 0, res2 =0, res3 = 0, res4 = 0;
-        for(int col = i; col<tamanio-i; col++){
-            for(int k = 0; k<tamanio; k++){
-                res1 +=a[i][k] * b[k][col];
-            }
-            matrix[i][col] = res1;
-        }
-        
-        for(int col = i; col<tamanio-i; col++){
-            for(int k = 0; k<tamanio; k++){
-                res2 +=a[tamanio - 1 - i][k] * b[k][col];
-            }
-            matrix[tamanio-1-i][col] = res2;
-        }
+		printf("[%d] - Hijo %d procesa [%d, %d]\n", getpid(), i, i, tamanio - 1 - i);
+    
+        for (int col = i; col < tamanio - i; col++) {
+			resultado[i][col] = get_mult_result(matriza, matrizb, tamanio, i, col);
+			resultado[tamanio - 1 - i][col] = get_mult_result(matriza, matrizb, tamanio, tamanio - 1 - i, col);
+		}
 
-        for(int col = i; col<tamanio-i; col++){
-            for(int k = 0; k<tamanio; k++){
-                res3 +=a[col][k] * b[k][i];
-            }
-            matrix[col][i] = res3;
-        }
-
-        for(int col = i; col<tamanio-i; col++){
-            for(int k = 0; k<tamanio; k++){
-                res3 +=a[col][k] * b[k][tamanio - 1 - i];
-            }
-            matrix[col][tamanio - 1 - i] = res4;
-        }
-
-        /* for (int col = i; col < tamanio - i; col++) {
-			matrix[i][col] = get_mult_result(tamanio, i, col);
-			matrix[tamanio - 1 - i][col] = get_mult_result(tamanio, tamanio - 1 - i, col);
-		} */
-
-		/* for (int row = i; row < tamanio - i; row++) {
-			matrix[row][i] = get_mult_result(tamanio, row, i);
-			matrix[row][tamanio - 1 - i] = get_mult_result(tamanio, row, tamanio - 1 - i);
-		} */
+		for (int row = i; row < tamanio - i; row++) {
+			resultado[row][i] = get_mult_result(matriza, matrizb, tamanio, row, i);
+			resultado[row][tamanio - 1 - i] = get_mult_result(matriza, matrizb, tamanio, row, tamanio - 1 - i);
+		}
     }
    
 

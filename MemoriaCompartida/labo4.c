@@ -86,15 +86,15 @@ int main(int argc, char const *argv[])
 
 	}
 	else{
-		//parte de arriba del anillo -> i = 0 j = 0 N = 3 m = 0 k= 1
+		//parte de arriba del anillo 
 		for(int j=i; j<N-i; j++){
             for(int m = i; m<N-i; m++){
                 matrix[i][j] = 0;
             }
 			for(int k=0; k<N-i; k++){
 				matrix[i][j] += a[i][k]*b[k][j];
-				}
-			printf("hijo[%d] opera matriz c [%d][%d]= %d\n", getpid(), i, j, matrix[i][j]);
+			}
+			
 		}
 		
 		//parte de la derecha del anillo arriba hacia abajo
@@ -105,7 +105,7 @@ int main(int argc, char const *argv[])
 			for(int k=0; k<N-i; k++){
 				matrix[j][N-i-1] += a[j][k]*b[k][N-i-1];
 				}
-			printf("hijo[%d] opera matriz c [%d][%d]= %d\n", getpid(), j, N-i-1, matrix[j][N-i-1]);
+			
 		}
 		
 		//parte de abajo del anillo <-
@@ -116,7 +116,7 @@ int main(int argc, char const *argv[])
 			for(int k=0; k<N-i; k++){
 				matrix[N-i-1][j] += a[N-i-1][k]*b[k][j];
 				}
-			printf("hijo[%d] opera matriz c [%d][%d]= %d\n", getpid(), N-i-1, j, matrix[N-i-1][j]);
+			
 		}
 		
 		//parte de la izquierda abajo hacia arriba del anillo
@@ -127,7 +127,7 @@ int main(int argc, char const *argv[])
 			for(int k=0; k<N-i; k++){
 				matrix[j][i] += a[j][k]*b[k][i];
 				}
-			printf("hijo[%d] opera matriz c [%d][%d]= %d\n", getpid(), j, i, matrix[j][i]);
+			
 		}
 
 		kill(root, SIGUSR1);
