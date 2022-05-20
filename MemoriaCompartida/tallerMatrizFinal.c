@@ -111,14 +111,16 @@ int main(){
 		}
 
     }else{ //Son los hijos
-		printf("Hijo %d procesa [%d, %d]\n", getpid(), i, tamanio - 1 - i);
-    
+		printf("Hijo %d procesa filas: [%d - %d] hasta [%d - %d] \n", getpid(), i, i, i, tamanio - 1 - i);
+		printf("Hijo %d procesa filas: [%d - %d] hasta [%d - %d] \n", getpid(), tamanio - 1 - i, i, tamanio - 1 - i, tamanio - 1 - i);
 		// Parte horizontal del anillo (arriba y abajo)
         for (int col = i; col < tamanio - i; col++) {
 			resultado[i][col] = get_mult_result(matriza, matrizb, tamanio, i, col);
 			resultado[tamanio - 1 - i][col] = get_mult_result(matriza, matrizb, tamanio, tamanio - 1 - i, col);
 		}
 
+		printf("Hijo %d procesa columnas: [%d - %d] hasta [%d - %d] \n", getpid(), i, i, tamanio - 1 - i, i);
+		printf("Hijo %d procesa columnas: [%d - %d] hasta [%d - %d] \n", getpid(), i, tamanio - 1 - i, tamanio - 1 - i, tamanio - 1 - i);
 		//Parte vertical del anillo (izquierda y derecha)
 		for (int row = i; row < tamanio - i; row++) {
 			resultado[row][i] = get_mult_result(matriza, matrizb, tamanio, row, i);
