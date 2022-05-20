@@ -109,10 +109,16 @@ int main(){
 			}
 			printf(" ]\n");
 		}
+
+        shmdt(matriza);
+		shmdt(matrizb);
+		shmdt(respuesta);
+
     }else{ //Son los hijos
         // Estoy en el i-esimo hijo
 		printf("[%d] - child %d began to process ring segment between indexes [%d, %d]\n", getpid(), i, i, tamanio - 1 - i);
 		int res1 = 0, res2 =0, res3 = 0, res4 = 0;
+
         for(int col = i; col<tamanio-i; col++){
             for(int k = 0; k<tamanio; k++){
                 res1 +=a[i][k] * b[k][col];

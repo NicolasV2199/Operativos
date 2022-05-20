@@ -109,6 +109,7 @@ int main(){
 			}
 			printf(" ]\n");
 		}
+
     }else{ //Son los hijos
 		printf("Hijo %d procesa [%d, %d]\n", getpid(), i, tamanio - 1 - i);
     
@@ -123,7 +124,16 @@ int main(){
 			resultado[row][i] = get_mult_result(matriza, matrizb, tamanio, row, i);
 			resultado[row][tamanio - 1 - i] = get_mult_result(matriza, matrizb, tamanio, row, tamanio - 1 - i);
 		}
+
     }
+
+		shmdt(matriza);
+		shmdt(matrizb);
+		shmdt(resultado);
+
+		shmctl(shmIdr, IPC_RMID, 0);
+		shmctl(shmIda, IPC_RMID, 0);
+		shmctl(shmIdb, IPC_RMID, 0);
 
     return EXIT_SUCCESS;
 }
