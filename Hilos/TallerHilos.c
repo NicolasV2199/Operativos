@@ -78,11 +78,13 @@ int main(){
     scanf("%d", &cantHilos);
 	printf("\n\n");
 
+	Nodo aux;
 	pthread_t tid[cantHilos];
 	if(cantHilos > 0){//Se crean los hilos nuevos
-		for(int i=0; i<cantHilos; i++){		
-			indices(i, cantHilos, longVector, &datos);	
-			pthread_create(&tid[i], NULL, funcion_hilo, (void*)&datos);	
+		for(int i=0; i<cantHilos; i++){
+			aux = (Nodo)malloc(sizeof(Nodo));		
+			indices(i, cantHilos, longVector, &aux);	
+			pthread_create(&tid[i], NULL, funcion_hilo, (void*)&aux);	
 		}
 	}else{ //Se hace todo en el hilo principal
 		for(int i = 0; i<longVector; i++){
