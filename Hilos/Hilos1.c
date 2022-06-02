@@ -6,6 +6,8 @@
 void* funcion_hilo1(void*);
 void* funcion_hilo2(void*);
 
+//Comando para ejecutar hilos: -pthread
+
 pthread_t tid1;
 int main(){
 	//pthread_t tid;	
