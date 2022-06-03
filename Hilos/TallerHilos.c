@@ -51,17 +51,16 @@ void indices(int i, int hilos, int n, Nodo *nodo){
 	//printf("Rango hilo %d: %d %d\n", i,inicio,final);
 }
 
-
 int *vector1=NULL;
 int *vector2=NULL;
 int sumaFinal = 0;
 int main(){
     
     int cantHilos, longVector; 
-	Nodo datos;
+
 
 	//Abro el archivo (debe estar en la misma carpeta) y lo divido en 2 vectores
-	char*nombreArchivo = "input1.txt";
+	char*nombreArchivo = "input0.txt";
     longVector = leerNumeros(nombreArchivo, &vector1, &vector2);
 
 	//Mostramos los vectores iniciales
@@ -78,13 +77,15 @@ int main(){
     scanf("%d", &cantHilos);
 	printf("\n\n");
 
-	Nodo aux;
+
 	pthread_t tid[cantHilos];
+	pthread_t hprincipal = pthread_self(); 
+	int i;
 	if(cantHilos > 0){//Se crean los hilos nuevos
-		for(int i=0; i<cantHilos; i++){
-			aux = (Nodo)malloc(sizeof(Nodo));		
-			indices(i, cantHilos, longVector, &aux);	
-			pthread_create(&tid[i], NULL, funcion_hilo, (void*)&aux);	
+		for( i=0; i<cantHilos -1; i++){
+			Nodo* aux = (Nodo*)malloc(sizeof(Nodo));		
+			indices(i, cantHilos, longVector, aux);	
+			pthread_create(&tid[i], NULL, funcion_hilo, (void*)aux);	
 		}
 	}else{ //Se hace todo en el hilo principal
 		for(int i = 0; i<longVector; i++){
@@ -92,21 +93,27 @@ int main(){
 		}
 	}
 
-	for(int i=0; i<cantHilos; i++)
-		pthread_join(tid[i], NULL);
-	
+	Nodo* datos = (Nodo*)malloc(sizeof(Nodo));
+	indices(i, cantHilos, longVector, datos);
+	printf("Hilo principal [%lu] hara inicio: [%d] fin: [%d]\n", pthread_self(), datos->a, datos->b);
+	for(int k = datos->a; k<=datos->b; k++){
+		sumaFinal += vector1[k] * vector2[k];
+	}
+
+
+	for(int j=0; j<cantHilos-1; j++)
+		pthread_join(tid[j], NULL);
+
 	printf("La suma final es: %d\n", sumaFinal);
 	
 	return EXIT_SUCCESS;
 }
 
-
-
 void* funcion_hilo(void* arg){	
 	Nodo* p = (Nodo *)arg;
 	printf("Hilo [%lu] hara inicio: [%d] fin: [%d]\n", pthread_self(), p->a, p->b);
-	for(int i = p->a; i<=p->b; i++){
-		sumaFinal += vector1[i]*vector2[i];
+	for(int k = p->a; k<=p->b; k++){
+		sumaFinal += vector1[k]*vector2[k];
 	}
 	pthread_exit(0);
 }
