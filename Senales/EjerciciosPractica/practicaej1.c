@@ -19,7 +19,7 @@ int main(){
     pid_t pidchilds[hijos];
     pid_t root = getpid();
 
-    printf("Cuantas repeticiones quiere?");
+    printf("Cuantas repeticiones quiere? \n");
     scanf("%d", &n);
 
     //Creacion de hijos
@@ -28,26 +28,27 @@ int main(){
         if(!pidchilds[i]) break;
     }
 
-    for(int j = 0; j<n; j++){
-        if(root == getpid()){//Es el padre
+    if(root == getpid()){//Es el padre
+        for(int j = 0; j < n; j++) {
             pause();
             printf("PADRE: [%d]\n", getpid());        
             usleep(10000);
             kill(pidchilds[1], SIGUSR1);
-
+        }
             for(int k=0; k<hijos; k++)wait(NULL);
         }else{ //Los hijos
-            if(i == 0){
-                usleep(1000000);
-                kill(getppid(), SIGUSR1);
-                printf("Hijo 1: [%d] Ping\n", getpid());
+            for(int j = 0; j<n; j++){
+                if(i == 0){
+                    usleep(100000);
+                    kill(getppid(), SIGUSR1);
+                    printf("Hijo 1: [%d] Ping\n", getpid());
+                }
+                if(i == 1){
+                    pause();
+                    printf("Hijo 2: [%d] Pong\n", getpid());
+                }
             }
-            if(i==1){
-                pause();
-                printf("Hijo 2: [%d] Pong\n", getpid());
-            }
-        }
-   }
+    }
 
     if(signal(SIGUSR1, oldhandler) == SIG_ERR){perror("signal:");exit(EXIT_FAILURE);}
     return EXIT_SUCCESS;
