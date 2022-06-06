@@ -25,7 +25,7 @@ int main() {
         perror("signal:");
         exit(EXIT_FAILURE);
     }
-
+    
     pid_t root = getpid();
     for(i=0 ; i < 2 ; i++) {
         pidchilds[i] = fork();
