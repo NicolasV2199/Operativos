@@ -51,10 +51,12 @@ int main(){
     int shmIdr = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); 
     resultado = shmat(shmIdr, NULL, 0); 
     create_index((void*)resultado, tamanio, tamanio, sizeof(int)); 
+
 	//Matriz a
     int shmIda = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); 
     matriza = shmat(shmIda, NULL, 0); 
     create_index((void*)matriza, tamanio, tamanio, sizeof(int)); 
+	
 	//Matriz b
     int shmIdb = shmget(IPC_PRIVATE, sizeMatrix, IPC_CREAT|0600); 
     matrizb = shmat(shmIdb, NULL, 0); 

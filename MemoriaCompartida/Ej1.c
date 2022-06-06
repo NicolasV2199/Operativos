@@ -10,6 +10,7 @@ int main(){
     int shmid = shmget((key_t)202223, sizeof(double), IPC_CREAT|0600); //0600 permiso de lectura y escritura para el propietario
     if(shmid != -1) printf("ok {%d}\n", shmid);
     else{perror("shmget"); exit(1);}
+    
     p = (double *)shmat(shmid, NULL, 0);
 
     *p = 6.3; 
