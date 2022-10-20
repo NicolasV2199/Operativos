@@ -15,7 +15,7 @@ int main(){
    if(fork()){ //padre
       char msg[] = {"Mensaje de texto"};
       
-      close(fd[0]);      
+      close(fd[0]); 
       sleep(5);
       write(fd[1], msg, strlen(msg));
       printf("[%d]escrito:--> %s\n", getpid(), msg);
